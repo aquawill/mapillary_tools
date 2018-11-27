@@ -1,4 +1,5 @@
 import inspect
+import os
 from mapillary_tools.process_user_properties import process_user_properties
 from mapillary_tools.process_import_meta_properties import process_import_meta_properties
 from mapillary_tools.process_geotag_properties import process_geotag_properties
@@ -6,6 +7,8 @@ from mapillary_tools.process_sequence_properties import process_sequence_propert
 from mapillary_tools.process_upload_params import process_upload_params
 from mapillary_tools.insert_MAPJson import insert_MAPJson
 from mapillary_tools.post_process import post_process
+from mapillary_tools import uploader
+from mapillary_tools import processing
 
 
 class Command:
@@ -121,25 +124,56 @@ class Command:
         vars_args = vars(args)
         if "geotag_source" in vars_args and vars_args["geotag_source"] == 'blackvue_videos' and ("device_make" not in vars_args or ("device_make" in vars_args and not vars_args["device_make"])):
             vars_args["device_make"] = "Blackvue"
-        process_user_properties(**({k: v for k, v in vars_args.iteritems()
-                                    if k in inspect.getargspec(process_user_properties).args}))
 
-        process_import_meta_properties(
+        progress_count_log_path = os.path.join(
+            vars_args["import_path"], "mapillary_tools_progress_counts.json")
+        summary_dict = {}
+        total_files = uploader.get_total_file_list(
+            vars_args["import_path"])
+        total_files_count = len(total_files)
+        summary_dict["total images"] = total_files_count
+        summary_dict["process summary"] = {}
+
+        process_success, process_failed = process_user_properties(**({k: v for k, v in vars_args.iteritems()
+                                                                      if k in inspect.getargspec(process_user_properties).args}))
+        summary_dict["process summary"]["user_process"] = {
+            "failed": process_failed,
+            "success": process_success
+        }
+        process_success, process_failed = process_import_meta_properties(
             **({k: v for k, v in vars_args.iteritems() if k in inspect.getargspec(process_import_meta_properties).args}))
-
-        process_geotag_properties(
+        summary_dict["process summary"]["import_meta_process"] = {
+            "failed": process_failed,
+            "success": process_success
+        }
+        process_success, process_failed = process_geotag_properties(
             **({k: v for k, v in vars_args.iteritems() if k in inspect.getargspec(process_geotag_properties).args}))
-
-        process_sequence_properties(
+        summary_dict["process summary"]["geotag_process"] = {
+            "failed": process_failed,
+            "success": process_success
+        }
+        process_success, process_failed, duplicates = process_sequence_properties(
             **({k: v for k, v in vars_args.iteritems() if k in inspect.getargspec(process_sequence_properties).args}))
-
-        process_upload_params(**({k: v for k, v in vars_args.iteritems()
-                                  if k in inspect.getargspec(process_upload_params).args}))
-
-        insert_MAPJson(**({k: v for k, v in vars_args.iteritems()
-                           if k in inspect.getargspec(insert_MAPJson).args}))
-
+        summary_dict["process summary"]["sequence_process"] = {
+            "failed": process_failed,
+            "success": process_success
+        }
+        summary_dict["process summary"]["duplicates"] = duplicates
+        process_success, process_failed = process_upload_params(**({k: v for k, v in vars_args.iteritems()
+                                                                    if k in inspect.getargspec(process_upload_params).args}))
+        summary_dict["process summary"]["upload_params_process"] = {
+            "failed": process_failed,
+            "success": process_success
+        }
+        process_success, process_failed = insert_MAPJson(**({k: v for k, v in vars_args.iteritems()
+                                                             if k in inspect.getargspec(insert_MAPJson).args}))
+        summary_dict["process summary"]["mapillary_image_description"] = {
+            "failed": process_failed,
+            "success": process_success
+        }
         print("Process done.")
+
+        processing.save_json(summary_dict, progress_count_log_path)
 
         post_process(**({k: v for k, v in vars_args.iteritems()
                          if k in inspect.getargspec(post_process).args}))

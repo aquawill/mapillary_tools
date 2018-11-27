@@ -12,7 +12,8 @@ def process_user_properties(import_path,
                             verbose=False,
                             rerun=False,
                             skip_subfolders=False,
-                            video_import_path=None):
+                            video_import_path=None,
+                            log_progress=False):
 
     # sanity check if video file is passed
     if video_import_path and not os.path.isdir(video_import_path):
@@ -83,3 +84,7 @@ def process_user_properties(import_path,
                                               verbose,
                                               user_properties)
     print("Sub process ended")
+    if user_properties:
+        return len(process_file_list), 0
+    else:
+        return 0, len(process_file_list)

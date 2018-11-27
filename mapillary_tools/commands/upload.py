@@ -1,6 +1,9 @@
 import inspect
 from mapillary_tools.upload import upload
 from mapillary_tools.post_process import post_process
+import os
+from mapillary_tools import uploader
+from mapillary_tools import processing
 
 
 class Command:
@@ -37,8 +40,23 @@ class Command:
 
         vars_args = vars(args)
 
-        upload(**({k: v for k, v in vars_args.iteritems()
-                   if k in inspect.getargspec(upload).args}))
+        progress_count_log_path = os.path.join(
+            vars_args["import_path"], "mapillary_tools_progress_counts.json")
+        summary_dict = {}
+        total_files = uploader.get_total_file_list(
+            vars_args["import_path"])
+        total_files_count = len(total_files)
+        summary_dict["total images"] = total_files_count
+
+        uploaded_count, failed_upload_count, to_be_finalized_count = upload(**({k: v for k, v in vars_args.iteritems()
+                                                                                if k in inspect.getargspec(upload).args}))
+        summary_dict["upload summary"] = {
+            "successfully uploaded": uploaded_count,
+            "failed uploads": failed_upload_count,
+            "uploaded to be finalized": to_be_finalized_count
+        }
+
+        processing.save_json(summary_dict, progress_count_log_path)
 
         post_process(**({k: v for k, v in vars_args.iteritems()
                          if k in inspect.getargspec(post_process).args}))
