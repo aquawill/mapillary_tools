@@ -48,13 +48,13 @@ class Command:
         total_files_count = len(total_files)
         summary_dict["total images"] = total_files_count
 
-        uploaded_count, failed_upload_count, to_be_finalized_count = upload(**({k: v for k, v in vars_args.iteritems()
-                                                                                if k in inspect.getargspec(upload).args}))
+        uploaded_count, failed_upload_count, to_be_uploaded_files_count = upload(**({k: v for k, v in vars_args.iteritems()
+                                                                                     if k in inspect.getargspec(upload).args}))
         summary_dict["upload summary"] = {
             "successfully uploaded": uploaded_count,
-            "failed uploads": failed_upload_count,
-            "uploaded to be finalized": to_be_finalized_count
+            "failed uploads": failed_upload_count
         }
+        summary_dict["process summary"]["processed_not_yet_uploaded"] = to_be_uploaded_files_count
 
         processing.save_json(summary_dict, progress_count_log_path)
 

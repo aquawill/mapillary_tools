@@ -41,6 +41,8 @@ def upload(import_path, verbose=False, skip_subfolders=False, number_threads=Non
     success_file_list = uploader.get_success_upload_file_list(
         import_path, skip_subfolders)
 
+    uploaded_count, failed_upload_count = len(
+        success_file_list), len(failed_file_list)
     if len(success_file_list) == len(total_file_list):
         print("All images have already been uploaded")
     else:
@@ -55,7 +57,7 @@ def upload(import_path, verbose=False, skip_subfolders=False, number_threads=Non
         # description and certain MAP properties
         upload_file_list = [
             f for f in upload_file_list if verify_mapillary_tag(f)]
-
+        to_be_uploaded_files_count = len(upload_file_list)
         if not len(upload_file_list):
             print("No images to upload.")
             print('Please check if all images contain the required Mapillary metadata. If not, you can use "mapillary_tools process" to add them')
@@ -96,3 +98,4 @@ def upload(import_path, verbose=False, skip_subfolders=False, number_threads=Non
                 list_per_sequence_mapping[sequence], params, idx, number_threads, max_attempts)
 
         uploader.print_summary(upload_file_list)
+    return uploaded_count, failed_upload_count, to_be_uploaded_files_count

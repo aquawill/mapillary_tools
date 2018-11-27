@@ -50,6 +50,7 @@ def insert_MAPJson(import_path,
         print("No images to run process finalization")
         print("If the images have already been processed and not yet uploaded, they can be processed again, by passing the argument --rerun")
 
+    process_success, process_failed = 0, 0
     for image in tqdm(process_file_list, desc="Inserting mapillary image description in image EXIF"):
         # check the processing logs
         log_root = uploader.log_rootpath(image)
@@ -77,5 +78,10 @@ def insert_MAPJson(import_path,
                                           "success",
                                           final_mapillary_image_description,
                                           verbose=verbose)
+        if final_mapillary_image_description:
+            process_success += 1
+        else:
+            process_failed += 1
 
     print("Sub process ended")
+    return process_success, process_failed

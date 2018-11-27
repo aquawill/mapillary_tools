@@ -152,12 +152,9 @@ class Command:
             "failed": process_failed,
             "success": process_success
         }
-        process_success, process_failed = process_import_meta_properties(
+        process_import_meta_properties(
             **({k: v for k, v in vars_args.iteritems() if k in inspect.getargspec(process_import_meta_properties).args}))
-        summary_dict["process summary"]["import_meta_process"] = {
-            "failed": process_failed,
-            "success": process_success
-        }
+
         process_success, process_failed = process_geotag_properties(
             **({k: v for k, v in vars_args.iteritems() if k in inspect.getargspec(process_geotag_properties).args}))
         summary_dict["process summary"]["geotag_process"] = {
@@ -183,6 +180,8 @@ class Command:
             "failed": process_failed,
             "success": process_success
         }
+        summary_dict["process summary"]["processed_not_yet_uploaded"] = process_success
+
         print("Process done.")
 
         processing.save_json(summary_dict, progress_count_log_path)

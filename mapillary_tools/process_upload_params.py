@@ -73,7 +73,7 @@ def process_upload_params(import_path,
         user_permission_hash = credentials["user_permission_hash"]
         user_signature_hash = credentials["user_signature_hash"]
         user_key = credentials["MAPSettingsUserKey"]
-
+    process_success, process_failed = 0, 0
     for image in tqdm(process_file_list, desc="Processing image upload parameters"):
 
         # check the status of the sequence processing
@@ -102,9 +102,14 @@ def process_upload_params(import_path,
                                           "success",
                                           upload_params_properties,
                                           verbose=verbose)
+        if upload_params_properties:
+            process_success += 1
+        else:
+            process_failed += 1
         # flag manual upload
         log_manual_upload = os.path.join(
             log_root, "manual_upload")
         open(log_manual_upload, 'a').close()
 
     print("Sub process ended")
+    return process_success, process_failed

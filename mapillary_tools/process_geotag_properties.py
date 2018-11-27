@@ -45,7 +45,7 @@ def process_geotag_properties(import_path,
     if not len(process_file_list):
         print("No images to run geotag process")
         print("If the images have already been processed and not yet uploaded, they can be processed again, by passing the argument --rerun")
-
+        return 0, 0
     # sanity checks
     if geotag_source_path == None and geotag_source != "exif":
         # if geotagging from external log file, path to the external log file
@@ -65,42 +65,45 @@ def process_geotag_properties(import_path,
                                                   verbose)
         sys.exit(1)
 
+    process_success = 0
+    process_failed = 0
     # function calls
     if geotag_source == "exif":
-        geotag_properties = processing.geotag_from_exif(process_file_list,
-                                                        import_path,
-                                                        offset_time,
-                                                        offset_angle,
-                                                        verbose)
+        process_success, process_failed = processing.geotag_from_exif(process_file_list,
+                                                                      import_path,
+                                                                      offset_time,
+                                                                      offset_angle,
+                                                                      verbose)
 
     elif geotag_source == "gpx" or geotag_source == "nmea":
-        geotag_properties = processing.geotag_from_gps_trace(process_file_list,
-                                                             geotag_source,
-                                                             geotag_source_path,
-                                                             offset_time,
-                                                             offset_angle,
-                                                             local_time,
-                                                             sub_second_interval,
-                                                             use_gps_start_time,
-                                                             verbose)
+        process_success, process_failed = processing.geotag_from_gps_trace(process_file_list,
+                                                                           geotag_source,
+                                                                           geotag_source_path,
+                                                                           offset_time,
+                                                                           offset_angle,
+                                                                           local_time,
+                                                                           sub_second_interval,
+                                                                           use_gps_start_time,
+                                                                           verbose)
     elif geotag_source == "gopro_videos":
-        geotag_properties = processing.geotag_from_gopro_video(process_file_list,
-                                                               import_path,
-                                                               geotag_source_path,
-                                                               offset_time,
-                                                               offset_angle,
-                                                               local_time,
-                                                               sub_second_interval,
-                                                               use_gps_start_time,
-                                                               verbose)
+        process_success, process_failed = processing.geotag_from_gopro_video(process_file_list,
+                                                                             import_path,
+                                                                             geotag_source_path,
+                                                                             offset_time,
+                                                                             offset_angle,
+                                                                             local_time,
+                                                                             sub_second_interval,
+                                                                             use_gps_start_time,
+                                                                             verbose)
     elif geotag_source == "blackvue_videos":
-        geotag_properties = processing.geotag_from_blackvue_video(process_file_list,
-                                                                  import_path,
-                                                                  geotag_source_path,
-                                                                  offset_time,
-                                                                  offset_angle,
-                                                                  local_time,
-                                                                  sub_second_interval,
-                                                                  use_gps_start_time,
-                                                                  verbose)
+        process_success, process_failed = processing.geotag_from_blackvue_video(process_file_list,
+                                                                                import_path,
+                                                                                geotag_source_path,
+                                                                                offset_time,
+                                                                                offset_angle,
+                                                                                local_time,
+                                                                                sub_second_interval,
+                                                                                use_gps_start_time,
+                                                                                verbose)
     print("Sub process ended")
+    return process_success, process_failed

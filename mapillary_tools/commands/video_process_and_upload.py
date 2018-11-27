@@ -156,12 +156,9 @@ class Command:
             "failed": process_failed,
             "success": process_success
         }
-        process_success, process_failed = process_import_meta_properties(
+        process_import_meta_properties(
             **({k: v for k, v in vars_args.iteritems() if k in inspect.getargspec(process_import_meta_properties).args}))
-        summary_dict["process summary"]["import_meta_process"] = {
-            "failed": process_failed,
-            "success": process_success
-        }
+
         process_success, process_failed = process_geotag_properties(
             **({k: v for k, v in vars_args.iteritems() if k in inspect.getargspec(process_geotag_properties).args}))
         summary_dict["process summary"]["geotag_process"] = {
@@ -189,13 +186,13 @@ class Command:
         }
         print("Process done.")
 
-        uploaded_count, failed_upload_count, to_be_finalized_count = upload(**({k: v for k, v in vars_args.iteritems()
-                                                                                if k in inspect.getargspec(upload).args}))
+        uploaded_count, failed_upload_count, to_be_uploaded_files_count = upload(**({k: v for k, v in vars_args.iteritems()
+                                                                                     if k in inspect.getargspec(upload).args}))
         summary_dict["upload summary"] = {
             "successfully uploaded": uploaded_count,
-            "failed uploads": failed_upload_count,
-            "uploaded to be finalized": to_be_finalized_count
+            "failed uploads": failed_upload_count
         }
+        summary_dict["process summary"]["processed_not_yet_uploaded"] = to_be_uploaded_files_count
 
         processing.save_json(summary_dict, progress_count_log_path)
 

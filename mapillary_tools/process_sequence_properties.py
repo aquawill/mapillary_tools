@@ -69,6 +69,7 @@ def process_sequence_properties(import_path,
         sys.exit(1)
 
     sequences = []
+    process_success, process_failed = 0, 0
     if skip_subfolders:
         process_file_list = processing.get_process_file_list(import_path,
                                                              "sequence_process",
@@ -86,7 +87,8 @@ def process_sequence_properties(import_path,
             file_list, capture_times, lats, lons, directions = processing.load_geotag_points(
                 process_file_list, verbose)
             # ---------------------------------------
-
+            process_success += len(file_list)
+            process_failed += len(process_file_list) - len(file_list)
             # SPLIT SEQUENCES --------------------------------------
             if len(capture_times) and len(lats) and len(lons):
                 sequences.extend(processing.split_sequences(
@@ -113,12 +115,15 @@ def process_sequence_properties(import_path,
                 # LOAD TIME AND GPS POINTS ------------------------------------
                 file_list, capture_times, lats, lons, directions = processing.load_geotag_points(
                     process_file_list, verbose)
+                process_success += len(file_list)
+                process_failed += len(process_file_list) - len(file_list)
                 # ---------------------------------------
                 # SPLIT SEQUENCES --------------------------------------
                 if len(capture_times) and len(lats) and len(lons):
                     sequences.extend(processing.split_sequences(
                         capture_times, lats, lons, file_list, directions, cutoff_time, cutoff_distance, verbose))
                 # ---------------------------------------
+    duplicates_count = 0
     if flag_duplicates:
         if verbose:
             print("Flagging images as duplicates if consecutive distance difference less than {} and angle difference less than {}".format(
@@ -179,6 +184,7 @@ def process_sequence_properties(import_path,
                     open(sequence_process_success_path, "w").close()
                     open(sequence_process_success_path + "_" +
                          str(time.strftime("%Y_%m_%d_%H_%M_%S", time.gmtime())), "w").close()
+                    duplicates_count += 1
                 else:
                     prev_latlon = latlons[k]
                     prev_direction = directions[k]
@@ -199,3 +205,4 @@ def process_sequence_properties(import_path,
                                          import_path,
                                          verbose)
     print("Sub process ended")
+    return process_success, process_failed, duplicates_count

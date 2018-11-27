@@ -12,8 +12,7 @@ def process_user_properties(import_path,
                             verbose=False,
                             rerun=False,
                             skip_subfolders=False,
-                            video_import_path=None,
-                            log_progress=False):
+                            video_import_path=None):
 
     # sanity check if video file is passed
     if video_import_path and not os.path.isdir(video_import_path):
@@ -43,6 +42,7 @@ def process_user_properties(import_path,
     if not len(process_file_list):
         print("No images to run user process")
         print("If the images have already been processed and not yet uploaded, they can be processed again, by passing the argument --rerun")
+        return 0, 0
 
     # sanity checks
     if not user_name:
