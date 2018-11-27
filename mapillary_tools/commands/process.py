@@ -168,7 +168,7 @@ class Command:
             "failed": process_failed,
             "success": process_success
         }
-        summary_dict["process summary"]["processed_not_yet_uploaded"] = process_success
+        summary_dict["process summary"]["processed_not_yet_uploaded"] = process_success - duplicates
 
         print("Process done.")
 

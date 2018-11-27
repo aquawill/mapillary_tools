@@ -161,7 +161,7 @@ class Command:
             "failed": process_failed,
             "success": process_success
         }
-        [process_success, process_failed, duplicates] = process_sequence_properties(
+        process_success, process_failed, duplicates = process_sequence_properties(
             **({k: v for k, v in vars_args.iteritems() if k in inspect.getargspec(process_sequence_properties).args}))
         summary_dict["process summary"]["sequence_process"] = {
             "failed": process_failed,
@@ -180,7 +180,7 @@ class Command:
             "failed": process_failed,
             "success": process_success
         }
-        summary_dict["process summary"]["processed_not_yet_uploaded"] = process_success
+        summary_dict["process summary"]["processed_not_yet_uploaded"] = process_success - duplicates
 
         print("Process done.")
 
