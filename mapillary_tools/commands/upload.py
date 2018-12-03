@@ -54,7 +54,8 @@ class Command:
             "successfully uploaded": uploaded_count,
             "failed uploads": failed_upload_count
         }
-        summary_dict["process summary"]["processed_not_yet_uploaded"] = to_be_uploaded_files_count
+        summary_dict["process summary"] = {
+            "processed_not_yet_uploaded": to_be_uploaded_files_count}
 
         processing.save_json(summary_dict, progress_count_log_path)
 
