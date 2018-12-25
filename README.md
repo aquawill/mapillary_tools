@@ -462,7 +462,11 @@ You will need to have [python=2.7.x](https://www.python.org/downloads/release/py
 
 To install `mapillary_tools` on macOS, Ubuntu, or Windows, run:
 
+	For original version:
 	pip install --upgrade git+https://github.com/mapillary/mapillary_tools
+	
+	For forked to work with dashcam
+	pip install --upgrade git+https://github.com/aquawill/mapillary_tools_for_dashcam
 
 which will enable processing and uploading of images. Note that the commands should either be run in [`virtualenv`](https://virtualenv.pypa.io/en/stable/installation/) or as `sudo`.
 
