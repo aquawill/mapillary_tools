@@ -1,9 +1,14 @@
+# forked https://github.com/mapillary/mapillary_tools/blob/master/mapillary_tools/process_video.py
+# disable ffprobe for video creation time
+# use os.path.getctime instead
+
 from ffprobe import FFProbe
 import datetime
 import os
 import processing
 import subprocess
 import sys
+import time
 import uploader
 from tqdm import tqdm
 
@@ -92,7 +97,6 @@ def extract_frames(video_file,
                    video_start_time=None,
                    video_duration_ratio=1.0,
                    verbose=False):
-
     if verbose:
         print('extracting frames from {}'.format(video_file))
 
@@ -179,7 +183,10 @@ def get_video_start_time(video_file):
         print("Error, video file {} does not exist".format(video_file))
         return None
     try:
-        time_string = FFProbe(video_file).video[0].creation_time
+        # time_string = FFProbe(video_file).video[0].creation_time
+        # for dashcam video
+        time_string = time.strftime("%Y-%m-%dT%H:%M:%S.000000Z", time.gmtime(os.path.getctime(video_file) + time.altzone))
+        # for dashcam video
         try:
             creation_time = datetime.datetime.strptime(
                 time_string, TIME_FORMAT)
